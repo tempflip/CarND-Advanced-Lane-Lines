@@ -151,3 +151,7 @@ def fit_line_on_hist(p, degree=2, vis=False, plot=False, top_crop=0):
     return coeffs
 ```
 
+## Steps of the pipeline
+![Steps](./output_images/steps.png)
+
+## Problems
