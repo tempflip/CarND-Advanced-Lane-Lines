@@ -62,3 +62,92 @@ The transform is done using the _cv2.getPerspectiveTransform_ method. Parameters
 
 ![birds-eye](./output_images/birds-eye.png)
 
+## Sliding window histogram transform
+
+This function is trying to filter out noise.
+
+![hist-search](./output_images/hist-slide.png)
+
+```
+def hist_slide(data, wsize=50, thresh=0.5):
+    out = np.zeros(data.shape)
+    
+    i = 0
+    while i+wsize < data.shape[0]:
+        start_y = i
+        end_y = i + wsize
+        
+        window_hist = np.sum(data[start_y:end_y], axis=0)
+        window_hist = window_hist / np.max(window_hist)
+
+        window_hist[window_hist < thresh] = 0
+        out[start_y:end_y] = window_hist
+        
+        i+= wsize
+    return out
+```
+
+It loops from up to down over the rows and sums up column values (np.sum). After normalization, it applyes a threshold and returning the activated points.
+
+## Polynominal fit
+
+The _fit_line_on_hist_ function takes output from the _hist_slide_ function and returns polynominal coefficients. It assumes that the data is already split to left and right side, as well as transposed.
+
+1. As the data is transposed, so the y-axe shows the distance from the left side of the display, the y-coordinates of the lane-line is coordinated by getting the larges value : `y = np.argmax(p, axis=0)`
+2. Zero values as filtered out.
+3. Values which are more than 4*STD from the mean, are also filtered out.
+4. Still very extreme jumps in the data (more that 300 pixels between 2 points) are also filtered out.
+This is demonstrated on the plots: first plot shows the unfiltered data, while second shows the filtered data.
+5. `np.polyfit` is used on the filtered points.
+
+![lines](./output_images/lines.png)
+
+
+```
+def fit_line_on_hist(p, degree=2, vis=False, plot=False, top_crop=0):
+    y = np.argmax(p, axis=0)
+    x = np.arange(len(y))
+    y_mean = np.mean(y)
+    y_std = np.std(y)
+    
+    xx = []
+    yy = []
+    for i in range(top_crop, len(y)-top_crop):
+        if y[i] != 0 and abs(y[i] - y_mean) < y_std*4:
+            xx.append(x[i])
+            yy.append(y[i])
+
+    xx = np.array(xx)
+    yy = np.array(yy)
+    
+    # getting the average difference between the curve points
+    avg_dist = np.abs(np.ediff1d(yy[np.where(yy != 0)]))
+    avg_dist = np.mean(avg_dist[np.where(avg_dist != 0)])
+    #print('avg_dist', avg_dist)
+    
+    # filtering the too large distances
+    xxx = []
+    yyy = []
+    xx = xx[::-1]
+    yy = yy[::-1]
+    last_y = yy[0]
+    for i in range(len(xx)):
+        if abs(last_y - yy[i]) > 300 : continue
+        last_y = yy[i]
+        xxx.append(xx[i])
+        yyy.append(yy[i])
+    
+    xx = np.array(xxx[::-1])
+    yy = np.array(yyy[::-1])
+    
+    if plot:
+        plt.subplot(1,3,1)
+        plt.plot(x,y)
+        plt.subplot(1,3,2)
+        plt.plot(xx,yy)
+            
+    coeffs = np.polyfit(xx, yy, degree)
+        
+    return coeffs
+```
+
