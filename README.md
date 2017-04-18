@@ -8,7 +8,7 @@ Please see the [jupyter notebook here](./adv_lane_finding.ipynb).
 
 ## Distortion correction
 
-I'm using the following function, using the previously _mtx_ coefficients.
+I'm using the following function with the previously calculated _mtx_ matrix.
 
 ```
 def undistort(image):
@@ -18,13 +18,13 @@ def undistort(image):
 
 ## Gradient (edge) detection
 
-I'm using 3 gradient finding algorithm: sobel on y-axe, sobel on y-axe and sobel to the direction of the gradient (arctan). Thresholding parameters are found by hand.
+I'm using 3 gradient finding algorithm: sobel on Y-axe, sobel on X-axe and sobel to the direction of the gradient (arctan). Thresholding parameters are found manually.
 
 After that, I'm combining them the following way:
 
 1. Taking x, y and direction sobel's of the L channel of the HLS color space
 2. Taking x and y sobels of the black and with image
-3. Adding up these values, so the most activated points are getting the higher values.
+3. Adding up these values, so more activated points are getting higher values.
 
 ![gradients](./output_images/edges.png)
 
@@ -93,10 +93,10 @@ It loops from up to down over the rows and sums up column values (np.sum). After
 
 The _fit_line_on_hist_ function takes output from the _hist_slide_ function and returns polynominal coefficients. It assumes that the data is already split to left and right side, as well as transposed.
 
-1. As the data is transposed, so the y-axe shows the distance from the left side of the display, the y-coordinates of the lane-line is coordinated by getting the larges value : `y = np.argmax(p, axis=0)`
+1. As the data is transposed, so the y-axe shows the distance from the left side of the display, the y-coordinates of the lane-line are probably the largest values in the columns : `y = np.argmax(p, axis=0)`
 2. Zero values as filtered out.
-3. Values which are more than 4*STD from the mean, are also filtered out.
-4. Still very extreme jumps in the data (more that 300 pixels between 2 points) are also filtered out.
+3. Values which are more than 4*standard deviation from the mean, are also filtered out.
+4. Very extreme jumps in the data points (more that 300 pixels between 2 points) are also filtered out.
 This is demonstrated on the plots: first plot shows the unfiltered data, while second shows the filtered data.
 5. `np.polyfit` is used on the filtered points.
 
