@@ -2,7 +2,7 @@
 
 Please see the the final video here:
 
-[![video](http://img.youtube.com/vi/Xi9nykQUFHE/0.jpg)](https://www.youtube.com/watch?v=Xi9nykQUFHE)
+[![video](http://img.youtube.com/vi/yLKoTrYVq8o/0.jpg)](https://www.youtube.com/watch?v=yLKoTrYVq8o)
 
 Please see the [jupyter notebook here](./adv_lane_finding.ipynb).
 
