@@ -2,7 +2,7 @@
 
 Please see the the final video here:
 
-[![video](http://img.youtube.com/vi/Xi9nykQUFHE/0.jpg)](https://www.youtube.com/watch?v=Xi9nykQUFHE)
+[![video](http://img.youtube.com/vi/yLKoTrYVq8o/0.jpg)](https://www.youtube.com/watch?v=yLKoTrYVq8o)
 
 Please see the [jupyter notebook here](./adv_lane_finding.ipynb).
 
@@ -154,4 +154,20 @@ def fit_line_on_hist(p, degree=2, vis=False, plot=False, top_crop=0):
 ## Steps of the pipeline
 ![Steps](./output_images/steps.png)
 
-## Problems
+## Problems, discussion
+
+The too biggest bottlenecks are edge-detection and the polynominal fit.
+
+Edge detection is problematic because it should work on different light conditions, as well it should find different types of lines (white, yellow, etc), and preferebly it should not find the things which are not lines (for example, shadows). My approach (combining different algorithms and channels) works pretty OK, and I think it could be developed even more by adding more channels/algorithms. Maybe some color normalization could also help.
+
+The detected eges are still noisy; and the birds-eye view transform makes it worse, as the more far a way a point from the camera, the less data we have about it; so a very little noise at far positions can make a lot of trouble.
+
+That's why I'm making before the polynominal fit some filtering, however parameters are chosen manually; 4-STD from the mean is chosed manually, so there is no guarantee that it would work in every situation.
+
+An extremly problematic situation is where some points are from the one side are interpreted by the algorithm as belongning to the other side:
+
+![bad points](./output_images/bad_points.png)
+
+My solution to this problem is to filter out the 'huge jumps' between the points; but choosing the parameter to define a 'huge jump' is somewhat accidental.
+
+I'm also using a smoothing technique at the frame level: the rendered line is the mean of the last 10 lines. This could be also improved by adding some outlier filtering.
